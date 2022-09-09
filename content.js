@@ -56,9 +56,9 @@ function mouseClick(event) {
       const target = e.target.closest("li");
       if (target) {
         const entireInputArr = entireInput.split(" ");
-        console.log('entireInputArr',entireInputArr);
+       
         const selectedWordIndex = entireInputArr.findIndex(item => item === word);
-        console.log('selectedWordIndex',selectedWordIndex);
+        
         entireInputArr[selectedWordIndex] = target.textContent;
         event.target.value = entireInputArr.join(" ");
       }
@@ -85,19 +85,15 @@ function searchWord(word) {
                     "Helo":['hello', 'Help', 'Hell'],
                     "heldp":['help', 'held', 'hello'],
                 };
+  const filteredWords = words[word] 
 
-  for (const key in words) {
-    if (word === key) {
-      tooltiptext.classList.add('tooltip')
-      const filteredWords = words[key].map(el=>el)
-      return filteredWords
-    }
-  }
+  if(filteredWords)  tooltiptext.classList.add('tooltip')
+ 
   return filteredWords;
 }
 
 function renderList(filteredWords) {
-
+  if(!filteredWords) return 
   const template = `<ul>
               ${filteredWords.map((item) => `<li>${item}</li>`).join('')}
                    </ul>`;
