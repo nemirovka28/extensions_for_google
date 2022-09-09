@@ -1,6 +1,14 @@
 
 
 /*-----------------------------------------------------------------------*/
+// const iframe = document.getElementsByTagName('iframe')[0];
+
+//       iframe.onload = function() {
+//         const iframein = document.getElementsByTagName('iframe')[0];
+//         const body = iframein.contentWindow.document;
+//         console.log('body',body);
+//       };
+
 
 const input = document.querySelector('input');
 
@@ -19,12 +27,6 @@ function onClickClose (e) {
 
 // функция для перемещения вспывающего окна
 
-const dragDrop=document.querySelector('.two');
-      dragDrop.addEventListener('mousemove', onClick);
-
-      function onClick (e) {
-          transition();
-      }
 
 /* ---------------------search for click key------------------------ */
 
@@ -42,9 +44,6 @@ function mouseClick(event) {
 
   const selectedIndex = input.selectionStart;
   const entireInput = event.target.value;
- 
-  console.log('entireInput', entireInput)
-  console.log('selectedIndex', selectedIndex)
 
   const word = getSelectedWord(selectedIndex, entireInput);
 
@@ -52,13 +51,14 @@ function mouseClick(event) {
 
     const filteredWords = searchWord(word);
     const content = renderList(filteredWords);
-    
-    content.addEventListener("click", (e) => {
+        content.addEventListener("click", (e) => {
    
       const target = e.target.closest("li");
       if (target) {
         const entireInputArr = entireInput.split(" ");
+        console.log('entireInputArr',entireInputArr);
         const selectedWordIndex = entireInputArr.findIndex(item => item === word);
+        console.log('selectedWordIndex',selectedWordIndex);
         entireInputArr[selectedWordIndex] = target.textContent;
         event.target.value = entireInputArr.join(" ");
       }
@@ -77,18 +77,27 @@ function getSelectedWord(selectedIndex, entireInput) {
 }
 
 function searchWord(word) {
-  tooltiptext.classList.remove('tooltip__hidden');
-  const words = ["lizard", "cat", "dog", "dooger", "elephant", "owl"];
 
-  const filteredWords = words.filter(
-    (item) => item[0] === word[0] && item[1] === word[1]);
-  if(filteredWords){
-    tooltiptext.classList.add('tooltip')
+  tooltiptext.classList.remove('tooltip__hidden');
+
+  const words = {
+                    "Cat":['Dog', 'Rat', 'bat'],
+                    "Helo":['hello', 'Help', 'Hell'],
+                    "heldp":['help', 'held', 'hello'],
+                };
+
+  for (const key in words) {
+    if (word === key) {
+      tooltiptext.classList.add('tooltip')
+      const filteredWords = words[key].map(el=>el)
+      return filteredWords
+    }
   }
   return filteredWords;
 }
 
 function renderList(filteredWords) {
+
   const template = `<ul>
               ${filteredWords.map((item) => `<li>${item}</li>`).join('')}
                    </ul>`;
@@ -96,53 +105,72 @@ function renderList(filteredWords) {
   return content;
 }
 
-/* Mouse move */
+/* ---------------------- Mouse move --------------------------- */
 
-function transition () {
-  console.log('click in transition')
+    window.onmousemove = moveElem;
+    window.onmouseup = stopMovingElem;
+    window.onload = init;
 
-  // const ball=document.querySelector('.tooltiptext')
-
-tooltiptext.onmousedown = function(event) {
-
-  console.log(event.target)
-
-  let shiftX = event.clientX - tooltiptext.getBoundingClientRect().left;
-  let shiftY = event.clientY - tooltiptext.getBoundingClientRect().top;
-
-  tooltiptext.style.position = 'absolute';
-  tooltiptext.style.zIndex = 1000;
-  document.body.append(tooltiptext);
-
-  moveAt(event.pageX, event.pageY);
-
-  // переносит мяч на координаты (pageX, pageY),
-  // дополнительно учитывая изначальный сдвиг относительно указателя мыши
-  function moveAt(pageX, pageY) {
-    tooltiptext.style.left = pageX - shiftX + 'px';
-    tooltiptext.style.top = pageY - shiftY + 'px';
-  }
-
-  function onMouseMove(event) {
-    moveAt(event.pageX, event.pageY);
-  }
-
-  // передвигаем мяч при событии mousemove
-  document.addEventListener('mousemove', onMouseMove);
-
-  // отпустить мяч, удалить ненужные обработчики
-  tooltiptext.onmouseup = function() {
+      let selected = null; //элемент для перемещения
+      let oldMouseX, oldMouseY; // Сохраняет координаты x и y указателя мыши
+      let elemX, elemY;
+      
+    function init() {
+        document.querySelector('.tooltiptext').onmousedown = function (evt) {
+            dragInit(evt);
+        };
+    }
+      
+    // Будет вызван, когда пользователь начнет перетаскивать элемент
+    function dragInit(evt) {
+        // Хранить элемент
+        selected = evt.target;
+        elemX = selected.offsetLeft;
+        elemY = selected.offsetTop;
+      
+        oldMouseX = evt.clientX;
+        oldMouseY = evt.clientY;
+    }
     
-    document.removeEventListener('mousemove', onMouseMove);
-    console.log('remove mouse');
+    // Будет вызываться при перетаскивании пользователем элемента
+    function moveElem(e) {
+        // новая позиция мыши
+        const newMouseX = e.clientX;
+        const newMouseY = e.clientY;
+        let dx = newMouseX;
+        let dy = newMouseY;
+      
+        if(oldMouseX !== undefined) {
+            // сколько пикселей мы двигали мышью?
+            dx = newMouseX - oldMouseX;
+            dy = newMouseY - oldMouseY;
+         }
+        
+        if (selected !== null) {  
+            // переместить выделенный элемент на dx, dy пикселей хозонтально / вертикально
+            changePosOfSelectedElement(dx, dy);
+        }
+      
+        // обновить старую позицию мыши
+        oldMouseX = newMouseX;
+        oldMouseY = newMouseY;
+    }
+    
+    function changePosOfSelectedElement(dx, dy) {
+      // обновить старую позицию выбранного элемента
+      elemX += dx;
+      elemY += dy;
+      
+      // изменить позицию элемента на экране 
+      // изменив его CSS свойства left / top
+      selected.style.left = elemX + 'px';
+      selected.style.top = elemY + 'px';
+    }
+    
+    // Уничтожить объект, когда мы закончим
+    function stopMovingElem() {
+        selected = null;
+    }
 
-    // ball.onmouseup = null;
-  };
-
-};
-
-tooltiptext.ondragstart = function() {
-  return false;
-};
-}
+  
 
