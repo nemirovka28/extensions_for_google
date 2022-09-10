@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------*/
-// const iframe = document.getElementsByTagName('iframe')[0];
-// console.log(iframe.contentWindow.document.body)
+const iframe = document.getElementsByTagName('iframe')[0];
+console.log(iframe)
 
 // console.log(iframe.onload)
 //       iframe.onload = function() {
@@ -10,21 +10,26 @@
 
 /*---------------------------------------------------------------------------------- */
 
-const value = async function getCurrentTab() {
-  let queryOptions = { active: true, lastFocusedWindow: true };
-  let [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
-}
+// const value = async function getCurrentTab() {
+//   let queryOptions = { active: true, lastFocusedWindow: true };
+//   let [tab] = await chrome.tabs.query(queryOptions);
+//   return tab;
+// }
 
-chrome.runtime.onMessage.addListener(function(message) {
-  console.log(message.method);
-  });
+// chrome.runtime.onMessage.addListener(function(message) {
+//   console.log(message.method);
+//   });
 
-console.log(value)
+// console.log(value)
 
 /*---------------------------------------------------------------------------------- */
 
 let wordIndex = undefined;
+const words = {
+  "Cat":['Dog', 'Rat', 'bat'],
+  "Helo":['hello', 'Help', 'Hell'],
+  "heldp":['help', 'held', 'hello'],
+};
 
 const input = document.querySelector('input'); // -> contenteditable elements, input[type=text]
 input.insertAdjacentHTML('afterend',`<div class="tooltiptext"><div class="popup__content"></div><span class="close">X</span></div>`);
@@ -59,16 +64,24 @@ function onClickClose (e) {
 function triggerInput(event) {
   const selectedIndex = input.selectionStart;
   const entireInput = event.target.value;
+  console.log('entireInput',entireInput);
   const {selectedWord, selectedWordIndex} = getSelectedWord(selectedIndex, entireInput);
   wordIndex = selectedWordIndex;
+  console.log('selectedWord',selectedWord);
+
   if (selectedWord) {
-    const suggestionWords = getSuggestionWords(selectedWord);
+    const suggestionWords = words[selectedWord] ?? [];
+    console.log('suggestionWords',suggestionWords);
+  
     if(suggestionWords.length) {
+      tooltiptext.style.visibility = 'visible';
       popup.innerHTML = (
         `<ul>
           ${suggestionWords.map((item) => `<li>${item}</li>`).join('')}
         </ul>`
       );
+    } else {
+      tooltiptext.style.visibility = 'hidden';
     }
   }
 }
@@ -80,21 +93,6 @@ function getSelectedWord(selectedIndex, entireInput) {
   const right = rightArr[0];
   return {selectedWord: left + right, selectedWordIndex: leftArr.length - 1 };
 }
-
-function getSuggestionWords(word) {
-  tooltiptext.classList.remove('tooltip__hidden');
-  const words = {
-                    "Cat":['Dog', 'Rat', 'bat'],
-                    "Helo":['hello', 'Help', 'Hell'],
-                    "heldp":['help', 'held', 'hello'],
-                };
-  const suggestionWords = words[word] ?? [];
-  if(suggestionWords.length){
-     tooltiptext.classList.add('tooltip')
-  };
-  return suggestionWords;
-}
-
 
 /* ---------------------- Mouse move --------------------------- */
 
