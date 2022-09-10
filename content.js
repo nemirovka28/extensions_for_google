@@ -1,21 +1,50 @@
-
-
 /*-----------------------------------------------------------------------*/
 // const iframe = document.getElementsByTagName('iframe')[0];
+// console.log(iframe.contentWindow.document.body)
 
+// console.log(iframe.onload)
 //       iframe.onload = function() {
-//         const iframein = document.getElementsByTagName('iframe')[0];
-//         const body = iframein.contentWindow.document;
-//         console.log('body',body);
+//         const iframeDocument = iframe;
+//         console.log(iframeDocument)
 //       };
 
+/*---------------------------------------------------------------------------------- */
 
-const input = document.querySelector('input');
+const value = async function getCurrentTab() {
+  let queryOptions = { active: true, lastFocusedWindow: true };
+  let [tab] = await chrome.tabs.query(queryOptions);
+  return tab;
+}
 
-input.insertAdjacentHTML('afterend',`<div class="tooltiptext"><div class="two">two</div><div class="popup__content"></div><span class="close">X</span></div>`);
-input.addEventListener("mouseup", mouseClick);
+chrome.runtime.onMessage.addListener(function(message) {
+  console.log(message.method);
+  });
+
+console.log(value)
+
+/*---------------------------------------------------------------------------------- */
+
+let wordIndex = undefined;
+
+const input = document.querySelector('input'); // -> contenteditable elements, input[type=text]
+input.insertAdjacentHTML('afterend',`<div class="tooltiptext"><div class="popup__content"></div><span class="close">X</span></div>`);
+input.addEventListener("mouseup", triggerInput); // event 'mouseup' -> 'selectionchange', check later
+input.addEventListener('keydown', (e) => e.code === 'Space' ? triggerInput(e) : null );
+
 const tooltiptext = document.querySelector(".tooltiptext");
-const content = document.querySelector('.popup__content');
+
+const popup = document.querySelector('.popup__content');
+popup.addEventListener("click", (e) => {
+  const target = e.target.closest("li");
+  if (target) {
+    const entireInputArr = input.value.split(" ");
+    if(wordIndex >= 0) {
+      entireInputArr[wordIndex] = target.textContent;
+      input.value = entireInputArr.join(" ");
+      tooltiptext.classList.add('tooltip__hidden');
+    }
+  }
+});
 
 const close = document.querySelector('.close');
       close.addEventListener('click', onClickClose);
@@ -25,44 +54,22 @@ function onClickClose (e) {
   tooltiptext.classList.add('tooltip__hidden');
 }
 
-// функция для перемещения вспывающего окна
-
-
-/* ---------------------search for click key------------------------ */
-
-input.addEventListener('keydown', (e) => {
-
-    if (e.code === 'Space') {
-        mouseClick(e)
-    }
-
-});
-
 /* ---------------------search for click mouse------------------------ */
 
-function mouseClick(event) {
-
+function triggerInput(event) {
   const selectedIndex = input.selectionStart;
   const entireInput = event.target.value;
-
-  const word = getSelectedWord(selectedIndex, entireInput);
-
-  if (word) {
-
-    const filteredWords = searchWord(word);
-    const content = renderList(filteredWords);
-        content.addEventListener("click", (e) => {
-   
-      const target = e.target.closest("li");
-      if (target) {
-        const entireInputArr = entireInput.split(" ");
-       
-        const selectedWordIndex = entireInputArr.findIndex(item => item === word);
-        
-        entireInputArr[selectedWordIndex] = target.textContent;
-        event.target.value = entireInputArr.join(" ");
-      }
-    });
+  const {selectedWord, selectedWordIndex} = getSelectedWord(selectedIndex, entireInput);
+  wordIndex = selectedWordIndex;
+  if (selectedWord) {
+    const suggestionWords = getSuggestionWords(selectedWord);
+    if(suggestionWords.length) {
+      popup.innerHTML = (
+        `<ul>
+          ${suggestionWords.map((item) => `<li>${item}</li>`).join('')}
+        </ul>`
+      );
+    }
   }
 }
 
@@ -71,35 +78,23 @@ function getSelectedWord(selectedIndex, entireInput) {
   const left = leftArr[leftArr.length - 1];
   const rightArr = entireInput.slice(selectedIndex).split(" ");
   const right = rightArr[0];
-  const word = left + right;
-  console.log(word)
-  return word;
+  return {selectedWord: left + right, selectedWordIndex: leftArr.length - 1 };
 }
 
-function searchWord(word) {
-
+function getSuggestionWords(word) {
   tooltiptext.classList.remove('tooltip__hidden');
-
   const words = {
                     "Cat":['Dog', 'Rat', 'bat'],
                     "Helo":['hello', 'Help', 'Hell'],
                     "heldp":['help', 'held', 'hello'],
                 };
-  const filteredWords = words[word] 
-
-  if(filteredWords)  tooltiptext.classList.add('tooltip')
- 
-  return filteredWords;
+  const suggestionWords = words[word] ?? [];
+  if(suggestionWords.length){
+     tooltiptext.classList.add('tooltip')
+  };
+  return suggestionWords;
 }
 
-function renderList(filteredWords) {
-  if(!filteredWords) return 
-  const template = `<ul>
-              ${filteredWords.map((item) => `<li>${item}</li>`).join('')}
-                   </ul>`;
-  content.innerHTML = template;
-  return content;
-}
 
 /* ---------------------- Mouse move --------------------------- */
 

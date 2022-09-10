@@ -7,6 +7,7 @@
         "service_worker": "background.js",
         "type": "module"     
       },
+    "options_page": "options.html",
       "content_scripts": [
         {
             "matches":["https://*/*"],
@@ -14,7 +15,7 @@
             "js":["content.js"]
         }
       ],
-      "permissions": ["storage", "activeTab", "scripting"],
+      "permissions": ["storage", "tabs", "activeTab", "scripting"],
       "action": {
         "default_popup": "popup.html"
       },

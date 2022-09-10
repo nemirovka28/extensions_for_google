@@ -7,3 +7,6 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 
+chrome.runtime.onMessage.addListener(function(message) {
+console.log(message.method);
+});
