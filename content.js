@@ -1,13 +1,44 @@
 /*-----------------------------------------------------------------------*/
-const iframe = document.getElementsByTagName('iframe')[0];
-console.log(iframe)
+// const iframe = document.querySelector('iframe')
+      // .addEventListener("DOMContentLoaded", function(event) {
+      //   console.log("DOM fully loaded and parsed",event);
+      // })
 
-// console.log(iframe.onload)
-//       iframe.onload = function() {
-//         const iframeDocument = iframe;
-//         console.log(iframeDocument)
-//       };
+// const iframe = frameRef.contentWindow ? frameRef.contentWindow.document : frameRef.contentDocument
 
+// console.log(iframe)
+
+      // iframe.onload = function() {
+      //   const iframeDocument = document.querySelector('iframe');
+      //   console.log(iframeDocument)
+      // };
+
+      // var request = { 
+      //   accepts: 'application/json', 
+      //   type: 'get', 
+      //   url: 'https://cdpn.io/olegfef/fullpage/LYmGdma', 
+      //   xhrFields: { 
+      //   withCredentials: true 
+      //   }, 
+
+      //  }; 
+      //  document.querySelector('iframe').contentWindow.postMessage(JSON.stringify({request}), request.url);
+      //  this.receiveMessage = function(message) { 
+      //   console.log(message) 
+      //  }; 
+      //  window.addEventListener('message', this.receiveMessage, false)
+      window.onmessage = function(event) {
+        event.source.postMessage(document.body.innerHTML, event.origin);
+    };
+    
+    // Main page:
+    window.onmessage = function(event) {
+        console.log(event.currentTarget.document.body.children);
+    };
+    
+    // Trigger:
+    // <iframe id="myframe" src="framed.htm"></iframe>
+    document.querySelector('iframe').contentWindow.postMessage('','*');
 /*---------------------------------------------------------------------------------- */
 
 // const value = async function getCurrentTab() {
