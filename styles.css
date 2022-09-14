@@ -1,18 +1,20 @@
 
- .tooltiptext {
-    display: flex;
-    justify-content: center;
-    visibility: hidden;
-    position:fixed;
-    top: 5%;
-    right: 5%;
-    width: 200px;
-    background-color:rgb(143, 196, 241);
-    color:black;
-    border-radius: 5px;
+.tooltiptext {
+  display: flex;
+  justify-content: center;
+  visibility: hidden;
+  position:fixed;
+  top: 5%;
+  right: 5%;
+  width: 200px;
+  background-color:rgb(143, 196, 241);
+  color:black;
+  border-radius: 5px;
 
-  }
-  
+}
+.tooltiptext:hover{
+  cursor: move;
+}
 .list{
     align-items: center;
    justify-content: center;

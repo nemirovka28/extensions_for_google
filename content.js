@@ -109,71 +109,6 @@
 
 // /* ---------------------- Mouse move --------------------------- */
 
-//     window.onmousemove = moveElem;
-//     window.onmouseup = stopMovingElem;
-//     window.onload = init;
-
-//       let selected = null; //элемент для перемещения
-//       let oldMouseX, oldMouseY; // Сохраняет координаты x и y указателя мыши
-//       let elemX, elemY;
-      
-//     function init() {
-//         document.querySelector('.tooltiptext').onmousedown = function (evt) {
-//             dragInit(evt);
-//         };
-//     }
-      
-//     // Будет вызван, когда пользователь начнет перетаскивать элемент
-//     function dragInit(evt) {
-//         // Хранить элемент
-//         selected = evt.target;
-//         elemX = selected.offsetLeft;
-//         elemY = selected.offsetTop;
-      
-//         oldMouseX = evt.clientX;
-//         oldMouseY = evt.clientY;
-//     }
-    
-//     // Будет вызываться при перетаскивании пользователем элемента
-//     function moveElem(e) {
-//         // новая позиция мыши
-//         const newMouseX = e.clientX;
-//         const newMouseY = e.clientY;
-//         let dx = newMouseX;
-//         let dy = newMouseY;
-      
-//         if(oldMouseX !== undefined) {
-//             // сколько пикселей мы двигали мышью?
-//             dx = newMouseX - oldMouseX;
-//             dy = newMouseY - oldMouseY;
-//          }
-        
-//         if (selected !== null) {  
-//             // переместить выделенный элемент на dx, dy пикселей хозонтально / вертикально
-//             changePosOfSelectedElement(dx, dy);
-//         }
-      
-//         // обновить старую позицию мыши
-//         oldMouseX = newMouseX;
-//         oldMouseY = newMouseY;
-//     }
-    
-//     function changePosOfSelectedElement(dx, dy) {
-//       // обновить старую позицию выбранного элемента
-//       elemX += dx;
-//       elemY += dy;
-      
-//       // изменить позицию элемента на экране 
-//       // изменив его CSS свойства left / top
-//       selected.style.left = elemX + 'px';
-//       selected.style.top = elemY + 'px';
-//     }
-    
-//     // Уничтожить объект, когда мы закончим
-//     function stopMovingElem() {
-//         selected = null;
-//     }
-
   const words = {
     "Cat":['Dog', 'Rat', 'bat'],
     "Helo":['hello', 'Help', 'Hell'],
@@ -186,82 +121,174 @@
     targetElement;
     tooltiptext;
     popup;
+    target;
 
     constructor({wordsMap = words } = {}) {
       this.wordsMap = wordsMap;
-      this.render();
       this.addEventListeners();
-  }
-
-    render(){
+      this.render();
+    }
+    addEventListeners(){
       console.log('render');
-      const input = document.querySelector('input')
-      input.insertAdjacentHTML('afterend',`<div class="tooltiptext"><div class="popup__content"></div><span class="close">X</span></div>`);
+      document.addEventListener("mouseup", this.SelectedTriggerElem);
+      document.addEventListener('keydown', (e) => e.code === 'Space' ? this.SelectedTriggerElem(e) : null );
+    }
+    SelectedTriggerElem = (event) => {
+      console.log('SelectedTriggerElem');
+       this.target = event.target.closest("input[type=text]")
+                  || event.target.closest("textarea")
+                  || event.target.closest("[contenteditable='true']");
+       this.triggerElem(this.target);
+    }
+    render(){
+      console.log('addEventListeners');
+      this.target = document.querySelector('input')
+                    .insertAdjacentHTML('afterend',`<div class="tooltiptext"><div class="popup__content"></div><span class="close">X</span></div>`);
+      const close = document.querySelector('.close');
+            close.addEventListener('click', this.onClickClose);
       this.popup = document.querySelector('.popup__content');
             this.popup.addEventListener("click", this.getWordPopup);
     }
-    addEventListeners(){
-      console.log('addEventListeners');
-      document.addEventListener("mouseup", this.triggerInput);
-      document.addEventListener('keydown', (e) => e.code === 'Space' ? this.triggerInput(e) : null );
+    onClickClose = (e) => {
+      this.tooltiptext.style.visibility = 'hidden';
     }
-
-    triggerInput = (event) => {
-      const target = event.target.closest("input[type=text]")
-                    || event.target.closest("textarea")
-                    || event.target.closest("[contenteditable='true']");
-      this.tooltiptext = document.querySelector(".tooltiptext");
+    triggerElem = (target) => {
+        this.tooltiptext = document.querySelector(".tooltiptext");
       if(target){
-      this.targetElement = target;
-      const selectedIndex = target.selectionStart || document.getSelection().anchorOffset;
-      let entireInput = null;
-      if(target.selectionStart) {
-        entireInput = event.target.value;
-        } else {
-          entireInput = this.targetElement.textContent;
-        }
-      const {selectedWord, selectedWordIndex} = this.getSelectedWord(selectedIndex, entireInput);
-      this.wordIndex = selectedWordIndex;
-      if (selectedWord) {
-        const suggestionWords = this.wordsMap[selectedWord] ?? [];
-        if(suggestionWords.length) {
-          this.tooltiptext.style.visibility = 'visible';
-          this.popup.innerHTML = (
-            `<ul class="list">
-              ${suggestionWords.map((item) => `<li class="list__item">${item}</li>`).join('')}
-            </ul>`
-          );
-        } else {
-          this.tooltiptext.style.visibility = 'hidden';
-        }
+        this.targetElement = target;
+        const selectedIndex = target.selectionStart || document.getSelection().anchorOffset;
+        let entireInput = null;
+          if(target.selectionStart) {
+            entireInput = target.value;
+            } else {
+              entireInput = this.targetElement.textContent;
+            }
+        const {selectedWord, selectedWordIndex} = this.getSelectedWord(selectedIndex, entireInput);
+        this.wordIndex = selectedWordIndex;
+          if (selectedWord) {
+            const suggestionWords = this.wordsMap[selectedWord] ?? [];
+            if(suggestionWords.length) {
+              this.tooltiptext.style.visibility = 'visible';
+              this.popup.innerHTML = (
+                `<ul class="list">
+                  ${suggestionWords.map((item) => `<li class="list__item">${item}</li>`).join('')}
+                </ul>`
+              );
+            } else {
+              this.tooltiptext.style.visibility = 'hidden';
+            }
+          }
       }
-    }
   }
   getWordPopup = (e) => {
     const target = e.target.closest("li");
     if (target) {
       const entireInputArr = this.targetElement.value ||  this.targetElement.textContent;
-      let arr = entireInputArr.split(" ");
+      let arr = entireInputArr.split(' ');
+      console.log('arr:',arr);
       if(this.wordIndex >= 0) {
         arr[this.wordIndex] = target.textContent;
-        // this.targetElement.value = arr.join(" ");
-        this.targetElement.textContent = arr.join(" ");
         this.tooltiptext.style.visibility = 'hidden';
+        this.targetElement.value ? this.targetElement.value = arr.join(" ")
+        : this.targetElement.textContent = arr.join(" ");
         this.targetElement.focus();
       }
     }
   }
     getSelectedWord(selectedIndex, entireInput) {
-      const leftArr = entireInput.slice(0, selectedIndex).split(" ");
+      console.log('selectedIndex',selectedIndex);
+      const substrings = entireInput.split("\n").reduce( (acc, substring, index) => {
+        acc[index] = {length: substring.length,
+                      startsFrom: acc[index - 1]?.length+acc[index - 1]?.startsFrom+1 || 0,
+                      substring: substring || 0 };
+        return acc;
+      },[]);
+      console.log('substrings:',substrings);
+      const rowIndexElem = substrings.findIndex((substr) => substr.startsFrom >= selectedIndex );
+      const rowIndex = rowIndexElem > 0 ? rowIndexElem : substrings.length;
+      console.log('rowIndex:',rowIndex);
+      const { substring, startsFrom } = substrings[rowIndex-1];
+      const substingSelectedIndex = selectedIndex - startsFrom;
+      console.log('substingSelectedIndex:',substingSelectedIndex);
+      const leftArr = substring.slice(0,substingSelectedIndex).split(' ');
+      console.log('leftArr:', leftArr);
       const left = leftArr[leftArr.length - 1];
-      console.log('left',left);
-      const rightArr = entireInput.slice(selectedIndex).split(" ");
+      console.log('left:', left);
+      const rightArr = substring.slice(substingSelectedIndex).split(" ");
+      console.log('rightArr:', rightArr);
       const right = rightArr[0];
-      console.log('right',right);
-      return {selectedWord: left + right, selectedWordIndex: leftArr.length - 1 };
+      console.log('right:',right);
+      const selectedWord = (left+right).trim();
+      console.log('selectedWord:', selectedWord);
+      const selectedWordIndex = leftArr.length - 1;
+      console.log('selectedWordIndex:', selectedWordIndex);
+      return { selectedWord, selectedWordIndex };
     }
   }
 
-  let main = new Popup();
+  const main = new Popup();
 
-  main.render()
+  window.onmousemove = moveElem;
+  window.onmouseup = stopMovingElem;
+  window.onload = init;
+
+    let selected = null; //элемент для перемещения
+    let oldMouseX, oldMouseY; // Сохраняет координаты x и y указателя мыши
+    let elemX, elemY;
+    
+  function init() {
+      document.querySelector('.tooltiptext').onmousedown = function (evt) {
+          dragInit(evt);
+      };
+  }
+    
+  // Будет вызван, когда пользователь начнет перетаскивать элемент
+  function dragInit(evt) {
+      // Хранить элемент
+      selected = evt.target;
+      elemX = selected.offsetLeft;
+      elemY = selected.offsetTop;
+    
+      oldMouseX = evt.clientX;
+      oldMouseY = evt.clientY;
+  }
+  
+  // Будет вызываться при перетаскивании пользователем элемента
+  function moveElem(e) {
+      // новая позиция мыши
+      const newMouseX = e.clientX;
+      const newMouseY = e.clientY;
+      let dx = newMouseX;
+      let dy = newMouseY;
+    
+      if(oldMouseX !== undefined) {
+          // сколько пикселей мы двигали мышью?
+          dx = newMouseX - oldMouseX;
+          dy = newMouseY - oldMouseY;
+       }
+      
+      if (selected !== null) {  
+          // переместить выделенный элемент на dx, dy пикселей хозонтально / вертикально
+          changePosOfSelectedElement(dx, dy);
+      }
+    
+      // обновить старую позицию мыши
+      oldMouseX = newMouseX;
+      oldMouseY = newMouseY;
+  }
+  
+  function changePosOfSelectedElement(dx, dy) {
+    // обновить старую позицию выбранного элемента
+    elemX += dx;
+    elemY += dy;
+    
+    // изменить позицию элемента на экране 
+    // изменив его CSS свойства left / top
+    selected.style.left = elemX + 'px';
+    selected.style.top = elemY + 'px';
+  }
+  
+  // Уничтожить объект, когда мы закончим
+  function stopMovingElem() {
+      selected = null;
+  }
