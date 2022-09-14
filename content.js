@@ -1,172 +1,98 @@
-
-// /*---------------------------------------------------------------------------------- */
-
-// // const value = async function getCurrentTab() {
-// //   let queryOptions = { active: true, lastFocusedWindow: true };
-// //   let [tab] = await chrome.tabs.query(queryOptions);
-// //   return tab;
-// // }
-
-// // chrome.runtime.onMessage.addListener(function(message) {
-// //   console.log(message.method);
-// //   });
-
-// // console.log(value)
-
-// /*---------------------------------------------------------------------------------- */
-
-// let wordIndex = undefined;
-// let targetItem = undefined;
-
-// console.log('targetItem',targetItem);
-// const words = {
-//   "Cat":['Dog', 'Rat', 'bat'],
-//   "Helo":['hello', 'Help', 'Hell'],
-//   "heldp":['help', 'held', 'hello'],
-// };
-
-// const input = document.querySelector('input'); // -> contenteditable elements, input[type=text]
-// input.insertAdjacentHTML('afterend',`<div class="tooltiptext"><div class="popup__content"></div><span class="close">X</span></div>`);
-// document.addEventListener("click", triggerInput); // event 'mouseup' -> 'selectionchange', check later
-// document.addEventListener('keydown', (e) => e.code === 'Space' ? triggerInput(e) : null );
-
-// const tooltiptext = document.querySelector(".tooltiptext");
-
-// const popup = document.querySelector('.popup__content');
-
-// popup.addEventListener("click", (e) => {
-  // const target = e.target.closest("li");
-  // if (target) {
-  //   const entireInputArr = targetItem.value || targetItem.textContent;
-  //   let arr = entireInputArr.split(" ");
-  //   console.log('arr',arr);
-  //   if(wordIndex >= 0) {
-  //     arr[wordIndex] = target.textContent;
-  //     targetItem.value = arr.join(" ")
-  //     targetItem.textContent = arr.join(" ");
-  //     tooltiptext.style.visibility = 'hidden';
-  //     targetItem.focus();
-  //   }
-  // }
-// });
-
-// const close = document.querySelector('.close');
-//       close.addEventListener('click', onClickClose);
-
-// function onClickClose (e) {
-
-//   tooltiptext.style.visibility = 'hidden';
-// }
-
-// /* ---------------------search for click mouse------------------------ */
-
-//  function triggerInput(event) {
-
-//   console.log('event.code',event.code);
-
-  // const target = event.target.closest("input[type=text]")
-  //             || event.target.closest("textarea")
-  //             || event.target.closest("[contenteditable='true']");
-  // if(target){
-  // targetItem = target;
-  // const selectedIndex = target.selectionStart || document.getSelection().anchorOffset;
-  // let entireInput = null;
-  //   if(target.selectionStart) {
-  //     entireInput =  event.target.value;
-  //     console.log('entireInput', entireInput);
-  //     } else {
-  //       entireInput = targetItem.textContent;
-  //       console.log('entireInput', entireInput);
-  //     }
-  // const {selectedWord, selectedWordIndex} = getSelectedWord(selectedIndex, entireInput);
-  // wordIndex = selectedWordIndex
-  // if (selectedWord) {
-  //   console.log('selectedWord',selectedWord);
-  //   const suggestionWords = words[selectedWord] ?? [];
-  //   if(suggestionWords.length) {
-  //     tooltiptext.style.visibility = 'visible';
-  //     popup.innerHTML = (
-  //       `<ul class="list">
-  //         ${suggestionWords.map((item) => `<li class="list__item">${item}</li>`).join('')}
-  //       </ul>`
-  //     );
-  //     } else {
-  //       tooltiptext.style.visibility = 'hidden';
-  //     }
-  //   }
-  // }
-// }
-
-// function getSelectedWord(selectedIndex, entireInput) {
-//   const leftArr = entireInput.slice(0, selectedIndex).split(' ');
-//   const left = leftArr[leftArr.length - 1];
-//   console.log('left',left);
-//   const rightArr = entireInput.slice(selectedIndex).split(' ');
-//   const right = rightArr[0];
-//   console.log('right',right);
-//   return {selectedWord: left + right, selectedWordIndex: leftArr.length - 1 };
-// }
-
-// /* ---------------------- Mouse move --------------------------- */
-
   const words = {
-    "Cat":['Dog', 'Rat', 'bat'],
-    "Helo":['hello', 'Help', 'Hell'],
-    "heldp":['help', 'held', 'hello'],
+    "Cat":   ['Dog', 'Rat', 'bat'],
+    "Helo":  ['hello', 'Help', 'Hell'],
+    "heldp": ['help', 'held', 'hello'],
   };
-
+  
   class Popup {
 
-    wordIndex;
+    substringSelectedIndex;
+    substringSelectedWordIndex;
+    rowIndex;
     targetElement;
     tooltiptext;
     popup;
     target;
-
+  
     constructor({wordsMap = words } = {}) {
       this.wordsMap = wordsMap;
       this.addEventListeners();
       this.render();
     }
+  
     addEventListeners(){
-      console.log('render');
+      console.log('addEventListeners');
       document.addEventListener("mouseup", this.SelectedTriggerElem);
       document.addEventListener('keydown', (e) => e.code === 'Space' ? this.SelectedTriggerElem(e) : null );
+      document.addEventListener('keyup', (e) => this.switchCase(e) );
     }
+
+    switchCase = (e) => {
+      switch (e.code) {
+        case 'ArrowLeft':
+            return this.SelectedTriggerElem(e)
+        case 'ArrowRight':
+            return this.SelectedTriggerElem(e)
+        case 'ArrowUp':
+            return this.SelectedTriggerElem(e)
+        case 'ArrowDown':
+            return this.SelectedTriggerElem(e)
+        default: null      
+      }
+    }
+
     SelectedTriggerElem = (event) => {
       console.log('SelectedTriggerElem');
-       this.target = event.target.closest("input[type=text]")
-                  || event.target.closest("textarea")
-                  || event.target.closest("[contenteditable='true']");
-       this.triggerElem(this.target);
+      this.target = event.target.closest("input[type=text]")
+                || event.target.closest("textarea")
+                || event.target.closest("[contenteditable='true']");
+      this.triggerElem(this.target);
     }
-    render(){
-      console.log('addEventListeners');
+  
+    render() {
+      console.log('render');
       this.target = document.querySelector('input')
                     .insertAdjacentHTML('afterend',`<div class="tooltiptext"><div class="popup__content"></div><span class="close">X</span></div>`);
+  
       const close = document.querySelector('.close');
-            close.addEventListener('click', this.onClickClose);
+      close.addEventListener('click', this.onClickClose);
+  
       this.popup = document.querySelector('.popup__content');
-            this.popup.addEventListener("click", this.getWordPopup);
+      this.popup.addEventListener("click", this.getWordPopup);
     }
+  
     onClickClose = (e) => {
       this.tooltiptext.style.visibility = 'hidden';
     }
+  
     triggerElem = (target) => {
-        this.tooltiptext = document.querySelector(".tooltiptext");
+      console.log("Hi");
+      this.tooltiptext = document.querySelector(".tooltiptext");
+  
       if(target){
         this.targetElement = target;
+  
         const selectedIndex = target.selectionStart || document.getSelection().anchorOffset;
         let entireInput = null;
-          if(target.selectionStart) {
-            entireInput = target.value;
-            } else {
-              entireInput = this.targetElement.textContent;
-            }
-        const {selectedWord, selectedWordIndex} = this.getSelectedWord(selectedIndex, entireInput);
-        this.wordIndex = selectedWordIndex;
-          if (selectedWord) {
-            const suggestionWords = this.wordsMap[selectedWord] ?? [];
+  
+        if(target.selectionStart) {
+          entireInput = target.value;
+        } else {
+          entireInput = this.targetElement.textContent;
+        }
+  
+        const {substringSelectedIndex, substring, rowIndex} = this.getSelectedSubstring(selectedIndex, entireInput);
+        const {
+          selectedWord:       selectedSubstringWord,
+          selectedWordIndex:  substringSelectedWordIndex,
+        } = this.getSelectedWord(substringSelectedIndex, substring);
+        
+        this.rowIndex = rowIndex;
+        this.substringSelectedIndex = substringSelectedIndex;
+        this.substringSelectedWordIndex = substringSelectedWordIndex;
+  
+          if (selectedSubstringWord) {
+            const suggestionWords = this.wordsMap[selectedSubstringWord] ?? [];
             if(suggestionWords.length) {
               this.tooltiptext.style.visibility = 'visible';
               this.popup.innerHTML = (
@@ -179,116 +105,105 @@
             }
           }
       }
-  }
-  getWordPopup = (e) => {
-    const target = e.target.closest("li");
-    if (target) {
-      const entireInputArr = this.targetElement.value ||  this.targetElement.textContent;
-      let arr = entireInputArr.split(' ');
-      console.log('arr:',arr);
-      if(this.wordIndex >= 0) {
-        arr[this.wordIndex] = target.textContent;
-        this.tooltiptext.style.visibility = 'hidden';
-        this.targetElement.value ? this.targetElement.value = arr.join(" ")
-        : this.targetElement.textContent = arr.join(" ");
-        this.targetElement.focus();
-      }
     }
-  }
-    getSelectedWord(selectedIndex, entireInput) {
-      console.log('selectedIndex',selectedIndex);
+  
+    getSelectedSubstring(selectedIndex, entireInput) {
       const substrings = entireInput.split("\n").reduce( (acc, substring, index) => {
-        acc[index] = {length: substring.length,
-                      startsFrom: acc[index - 1]?.length+acc[index - 1]?.startsFrom+1 || 0,
-                      substring: substring || 0 };
-        return acc;
-      },[]);
-      console.log('substrings:',substrings);
+        acc[index] = {
+                  length:     substring.length,
+                  startsFrom: acc[index - 1]?.length+acc[index - 1]?.startsFrom+1 || 0,
+                  substring:  substring || 0,
+                    };
+          return acc;
+        },[]);
       const rowIndexElem = substrings.findIndex((substr) => substr.startsFrom >= selectedIndex );
       const rowIndex = rowIndexElem > 0 ? rowIndexElem : substrings.length;
-      console.log('rowIndex:',rowIndex);
       const { substring, startsFrom } = substrings[rowIndex-1];
-      const substingSelectedIndex = selectedIndex - startsFrom;
-      console.log('substingSelectedIndex:',substingSelectedIndex);
-      const leftArr = substring.slice(0,substingSelectedIndex).split(' ');
-      console.log('leftArr:', leftArr);
-      const left = leftArr[leftArr.length - 1];
-      console.log('left:', left);
-      const rightArr = substring.slice(substingSelectedIndex).split(" ");
-      console.log('rightArr:', rightArr);
-      const right = rightArr[0];
-      console.log('right:',right);
-      const selectedWord = (left+right).trim();
-      console.log('selectedWord:', selectedWord);
-      const selectedWordIndex = leftArr.length - 1;
-      console.log('selectedWordIndex:', selectedWordIndex);
-      return { selectedWord, selectedWordIndex };
+      const substringSelectedIndex = selectedIndex - startsFrom;
+      return { substring, substringSelectedIndex, rowIndex };
+    }
+  
+    getWordPopup = (e) => {
+      const target = e.target.closest("li");
+  
+      if (target) {
+        const entireInput = this.targetElement.value || this.targetElement.textContent;
+        const substrings = entireInput.split('\n');
+        const substring = substrings[this.rowIndex-1];
+        const substringWords = substring.split(' ');
+        substringWords[this.substringSelectedWordIndex] = target.textContent;
+        const finalString = substrings.map( (item, index) => {
+          if(index === this.rowIndex-1){
+            return substringWords.join(' ');
+          } else{
+           return item;
+          }
+      }).join('\n');
+      this.tooltiptext.style.visibility = 'hidden';
+      this.targetElement.value
+        ? this.targetElement.value = finalString
+        : this.targetElement.textContent = finalString
+      this.targetElement.focus();
     }
   }
+  
+  getSelectedWord(selectedIndex, substring) {
 
-  const main = new Popup();
+    const leftArr = substring.slice(0,selectedIndex).split(' ');
+    const left = leftArr[leftArr.length - 1];
+
+    const rightArr = substring.slice(selectedIndex).split(" ");
+    const right = rightArr[0];
+
+    const selectedWord = (left+right).trim();
+    const selectedWordIndex = leftArr.length - 1;
+    console.log('selectedWord:', selectedWord);
+    return { selectedWord, selectedWordIndex };
+
+  }
+}
+
+const main = new Popup();
 
   window.onmousemove = moveElem;
   window.onmouseup = stopMovingElem;
   window.onload = init;
-
-    let selected = null; //элемент для перемещения
-    let oldMouseX, oldMouseY; // Сохраняет координаты x и y указателя мыши
+    let selected = null; //element to move
+    let oldMouseX, oldMouseY; // Stores the x and y coordinates of the mouse pointer
     let elemX, elemY;
-    
   function init() {
       document.querySelector('.tooltiptext').onmousedown = function (evt) {
           dragInit(evt);
       };
   }
-    
-  // Будет вызван, когда пользователь начнет перетаскивать элемент
   function dragInit(evt) {
-      // Хранить элемент
       selected = evt.target;
       elemX = selected.offsetLeft;
       elemY = selected.offsetTop;
-    
       oldMouseX = evt.clientX;
       oldMouseY = evt.clientY;
   }
-  
-  // Будет вызываться при перетаскивании пользователем элемента
   function moveElem(e) {
-      // новая позиция мыши
       const newMouseX = e.clientX;
       const newMouseY = e.clientY;
       let dx = newMouseX;
       let dy = newMouseY;
-    
       if(oldMouseX !== undefined) {
-          // сколько пикселей мы двигали мышью?
           dx = newMouseX - oldMouseX;
           dy = newMouseY - oldMouseY;
        }
-      
       if (selected !== null) {  
-          // переместить выделенный элемент на dx, dy пикселей хозонтально / вертикально
           changePosOfSelectedElement(dx, dy);
       }
-    
-      // обновить старую позицию мыши
       oldMouseX = newMouseX;
       oldMouseY = newMouseY;
   }
-  
   function changePosOfSelectedElement(dx, dy) {
-    // обновить старую позицию выбранного элемента
     elemX += dx;
     elemY += dy;
-    
-    // изменить позицию элемента на экране 
-    // изменив его CSS свойства left / top
     selected.style.left = elemX + 'px';
     selected.style.top = elemY + 'px';
   }
-  
-  // Уничтожить объект, когда мы закончим
   function stopMovingElem() {
       selected = null;
   }
