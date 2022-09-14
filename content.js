@@ -66,7 +66,6 @@
     }
   
     triggerElem = (target) => {
-      console.log("Hi");
       this.tooltiptext = document.querySelector(".tooltiptext");
   
       if(target){
@@ -112,7 +111,7 @@
         acc[index] = {
                   length:     substring.length,
                   startsFrom: acc[index - 1]?.length+acc[index - 1]?.startsFrom+1 || 0,
-                  substring:  substring || 0,
+                  substring:  substring,
                     };
           return acc;
         },[]);
@@ -147,8 +146,8 @@
     }
   }
   
-  getSelectedWord(selectedIndex, substring) {
-
+  getSelectedWord(selectedIndex, substring="") {
+    console.log('substring',substring);
     const leftArr = substring.slice(0,selectedIndex).split(' ');
     const left = leftArr[leftArr.length - 1];
 
