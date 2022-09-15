@@ -1,66 +1,79 @@
-
 .tooltiptext {
   display: flex;
+  text-align: center;
   justify-content: center;
   visibility: hidden;
-  position:fixed;
+  position: fixed;
   top: 5%;
   right: 5%;
   width: 200px;
-  background-color:rgb(143, 196, 241);
-  color:black;
+  background-color: rgb(143, 196, 241);
+  color: black;
   border-radius: 5px;
-
 }
-.tooltiptext:hover{
+
+.tooltiptext:hover {
   cursor: move;
 }
-.list{
-    align-items: center;
-   justify-content: center;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  margin: 0;
 }
-.list__item{
-    cursor: pointer;
-    text-align: center;
-    list-style: none;
-    font-size: 14px;
-    width: 110px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    border-radius: 10px;
-    background-color:rgb(143, 196, 241);
-    box-shadow: 0 0 10px rgba(45, 21, 21, 0.5);
-    font-family: 'Times New Roman', Times, serif;
+
+.list__item {
+  cursor: pointer;
+  text-align: center;
+  list-style: none;
+  font-size: 14px;
+  width: 110px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  background-color: rgb(143, 196, 241);
+  box-shadow: 0 0 10px rgba(45, 21, 21, 0.5);
+  font-family: 'Times New Roman', Times, serif;
 }
-.list__item:hover{
-  background-color:rgb(37, 114, 181);
+
+.list__item:hover {
+  background-color: rgb(37, 114, 181);
   color: #ffff;
 }
- 
-  .close{
-    margin-left: 10px;
-  }
-  .close:hover{
-    cursor: pointer;
-  }
 
-  .two:hover{
-    cursor: pointer;
-  }
-  .modal-button {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 0px;
-    margin: 0px;
-  
-    width: 30px;
-    height: 30px;
-   fill:black;
-    background: rgb(225, 22, 22);
-    border: 1px solid rgba(206, 25, 25, 0.1);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: fill .3s;
-  
-  }
+.close {
+  width: 1em;
+  height: 1em;
+  float: right;
+  margin-top: 10px;
+  margin-right: 10px;
+  background-color: rgba(209, 57, 57, 0.579);
+  clip-path: polygon(
+    20% 0%,
+    0% 20%,
+    30% 50%,
+    0% 80%,
+    20% 100%,
+    50% 70%,
+    80% 100%,
+    100% 80%,
+    70% 50%,
+    100% 20%,
+    80% 0%,
+    50% 30%
+  );
+  cursor: pointer;
+}
+
+.close:hover {
+  opacity: 1;
+  background-color: red;
+}
+
+.popup__content {
+  margin-right: 20px;
+  margin-left: 35px;
+}

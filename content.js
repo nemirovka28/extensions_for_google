@@ -20,7 +20,6 @@ class Popup {
   }
 
   addEventListeners() {
-    console.log('addEventListeners');
     document.addEventListener('mouseup', this.SelectedTriggerElem);
     document.addEventListener('keydown', e => (e.code === 'Space' ? this.SelectedTriggerElem(e) : null));
     document.addEventListener('keyup', e => this.switchCase(e));
@@ -40,7 +39,7 @@ class Popup {
         null;
     }
   };
-
+  //get the element that was clicked
   SelectedTriggerElem = event => {
     this.target =
       event.target.closest('input[type=text]') ||
@@ -50,13 +49,12 @@ class Popup {
   };
 
   render() {
-    console.log('render');
-    this.target = document
-      .querySelector('input')
-      .insertAdjacentHTML(
-        'afterend',
-        `<div class="tooltiptext"><div class="popup__content"></div><span class="close">X</span></div>`,
-      );
+    this.target = document.querySelector('input').insertAdjacentHTML(
+      'afterend',
+      `<div class="tooltiptext"><div class="popup__content"></div>
+            <div class="close"></div>
+      </div>`,
+    );
 
     const close = document.querySelector('.close');
     close.addEventListener('click', this.onClickClose);
@@ -68,6 +66,7 @@ class Popup {
   onClickClose = e => {
     this.tooltiptext.style.visibility = 'hidden';
   };
+  // main function that calls all methods
 
   triggerElem = target => {
     this.tooltiptext = document.querySelector('.tooltiptext');
@@ -83,7 +82,7 @@ class Popup {
       } else {
         entireInput = this.targetElement.textContent;
       }
-      // const getSelectedWord = this.checkSubstringLengthDecorator(this.getSelectedWord);
+
       const { substringSelectedIndex, substring, rowIndex } = this.getSelectedSubstring(selectedIndex, entireInput);
       const { selectedWord: selectedSubstringWord, selectedWordIndex: substringSelectedWordIndex } =
         this.getSelectedWord(substringSelectedIndex, substring);
@@ -97,9 +96,10 @@ class Popup {
       }
     }
   };
+  // renders the list and shows it
 
   renderPopup = selectedSubstringWord => {
-    const suggestionWords = this.wordsMap[selectedSubstringWord] ?? [];
+    const suggestionWords = this.wordsMap[selectedSubstringWord] ?? []; // check if the word is in the replacement list
     if (suggestionWords.length) {
       this.tooltiptext.style.visibility = 'visible';
       this.popup.innerHTML = `<ul class="list">
@@ -109,6 +109,7 @@ class Popup {
       this.tooltiptext.style.visibility = 'hidden';
     }
   };
+  // if there are multiple lines. Get the selected row
 
   getSelectedSubstring(selectedIndex, entireInput) {
     const substrings = entireInput.split('\n').reduce((acc, substring, index) => {
@@ -125,6 +126,7 @@ class Popup {
     const substringSelectedIndex = selectedIndex - startsFrom;
     return { substring, substringSelectedIndex, rowIndex };
   }
+  // replace the substring in the input field
 
   getWordPopup = e => {
     const target = e.target.closest('li');
@@ -159,19 +161,7 @@ class Popup {
       }
     }
   };
-
-  // checkSubstringLengthDecorator = f => {
-  //   return function () {
-  //     if (this.isSubstringSelectedIndex.call(this)) {
-  //       console.log(`Good, Let's Gooooo !,`, f);
-  //     }
-  //     console.log(`Stop! Please write word!,`, f);
-  //   };
-  // };
-
-  // isSubstringSelectedIndex() {
-  //   return this.substringSelectedIndex > 0;
-  // }
+  // get word and index in string
 
   getSelectedWord(selectedIndex, substring = '') {
     const leftArr = substring.slice(0, selectedIndex).split(' ');
@@ -210,6 +200,7 @@ class PopupMove {
       this.dragInit(evt);
     };
   };
+  // Will be called when the user starts dragging the element
   dragInit = evt => {
     this.selected = evt.target;
     this.elemX = this.selected.offsetLeft;
@@ -217,27 +208,33 @@ class PopupMove {
     this.oldMouseX = evt.clientX;
     this.oldMouseY = evt.clientY;
   };
+  // Will be called when the user drags an element
   moveElem = e => {
     const newMouseX = e.clientX;
     const newMouseY = e.clientY;
     let dx = newMouseX;
     let dy = newMouseY;
     if (this.oldMouseX !== undefined) {
+      // how many pixels did we move the mouse?
       dx = newMouseX - this.oldMouseX;
       dy = newMouseY - this.oldMouseY;
     }
     if (this.selected !== null) {
+      // move selected element dx, dy pixels horizontally / vertically
       this.changePosOfSelectedElement(dx, dy);
     }
     this.oldMouseX = newMouseX;
     this.oldMouseY = newMouseY;
   };
+  // update the old position of the selected element
   changePosOfSelectedElement = (dx, dy) => {
     this.elemX += dx;
     this.elemY += dy;
     this.selected.style.left = this.elemX + 'px';
     this.selected.style.top = this.elemY + 'px';
   };
+  // change the position of the element on the screen
+  // changing its css properties left / top
   stopMovingElem = () => {
     this.selected = null;
   };
