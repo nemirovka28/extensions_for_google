@@ -67,7 +67,6 @@ class Popup {
     this.tooltiptext.style.visibility = 'hidden';
   };
   // main function that calls all methods
-
   triggerElem = target => {
     this.tooltiptext = document.querySelector('.tooltiptext');
 
@@ -162,7 +161,6 @@ class Popup {
     }
   };
   // get word and index in string
-
   getSelectedWord(selectedIndex, substring = '') {
     const leftArr = substring.slice(0, selectedIndex).split(' ');
     const left = leftArr[leftArr.length - 1];
